@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+
+# Gurobi
+gurobi.log
+gurobi.lic
+
+# Outputs and logs
+*.log
+results/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
