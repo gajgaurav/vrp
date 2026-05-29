@@ -5,36 +5,32 @@ from typing import Dict, Tuple, List
  
 @dataclass
 class VRPInstance:
-    
     '''Container for VRP instance data'''
     
     name : str
     dimension : int
-    capacity : int
+    capacity : float
     coords : Dict[int, Tuple[float, float]]
-    demands : Dict[int, int]
+    demands : Dict[int, float]
     depot_idx : int
     distance_matrix : np.ndarray
     edge_weight_type : str
  
 @dataclass
 class VRPSolution:
-    
     '''Container for VRP solution data'''
     
     cost : float
     routes : List[List[int]]
 
 def get_vrp_attribute(attribute, info, splitter = ':'):
-    
     '''Fetches single row VRP attributes (case-insensitive) and their associated index'''
     
     attribute_idx = [i for i, line in enumerate(info) if attribute.lower() in line.lower()][0]
-    attribute = info[attribute_idx].split(splitter)[-1].strip().lower()
+    attribute = info[attribute_idx].split(splitter)[-1].strip()
     return attribute_idx, attribute
 
 def parse_vrp_instance(vrp_filepath):
-    
     '''Parses TSPLIB95 format VRP instances'''
     
     with open(vrp_filepath, 'r') as f:
@@ -81,9 +77,9 @@ def parse_vrp_instance(vrp_filepath):
     except:
         raise ValueError('Edge weight type is required but not found in problem file')
 
-    if edge_weight_type == 'explicit':
+    if edge_weight_type.lower() == 'explicit':
         raise ValueError('Explicit edge weight handling not part of current functionality.')
-    elif edge_weight_type == 'euc_2d':
+    elif edge_weight_type.lower() == 'euc_2d':
         coords_array = np.array([coords[i] for i in range(dimension)])
         distance_matrix = np.sqrt(((coords_array[:, np.newaxis, :] - coords_array[np.newaxis, :, :]) ** 2).sum(axis = 2))
     else:
@@ -102,7 +98,6 @@ def parse_vrp_instance(vrp_filepath):
     return instance
 
 def parse_vrp_solution(sol_filepath):
-
     '''Parses TSPLIB95 format VRP solutions'''
     
     with open(sol_filepath, 'r') as f:
