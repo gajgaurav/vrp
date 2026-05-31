@@ -6,6 +6,7 @@ Personal learning repo for vehicle routing problems. Working through Toth & Vigo
 
 - `parsers/` — instance file parsers (VRP-REP XML, TSPLIB format)
 - `solvers/` — MILP formulations and metaheuristics
+- `utils/` - cost computation, validation, and visualization helpers
 - `bks/` — best-known solutions for validation
 - `instances/` — benchmark instances
 - `notebooks/` — analysis and visualization
