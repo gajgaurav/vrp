@@ -98,9 +98,9 @@ def get_cw_solution(instance: VRPInstance) -> VRPSolution:
             # Merge by concatenating: route1 ends at edge_idx1, route2 starts at edge_idx2
             potential_merged_route = route1 + route2
             
-            # Only finalize merge if capacity constraint is satisfied
+            # Only finalize merge if capacity constraint is satisfied,
+            # and remove old routes (higher index first to avoid index shifting)
             if get_route_demand(potential_merged_route, instance) <= instance.capacity:
-                # Remove old routes (higher index first to avoid index shifting)
                 routes.pop(max(idx1_route, idx2_route))
                 routes.pop(min(idx1_route, idx2_route))
                 routes.append(potential_merged_route)
