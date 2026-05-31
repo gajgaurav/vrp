@@ -13,4 +13,3 @@ Personal learning repo for vehicle routing problems. Working through Toth & Vigo
 ## References
 
 - Toth, P. & Vigo, D. (2014). *Vehicle Routing: Problems, Methods, and Applications*, 2nd ed., MOS-SIAM.
-- VRP-REP: http://www.vrp-rep.org
