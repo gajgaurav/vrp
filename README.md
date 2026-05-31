@@ -1,6 +1,6 @@
 # VRP
 
-Personal learning repo for vehicle routing problems. Working through Toth & Vigo (2014) and implementing solvers on VRP-REP benchmark instances.
+Personal learning repo for vehicle routing problems. Working through Toth & Vigo (2014) and implementing solvers on benchmark instances.
 
 ## Structure
 
