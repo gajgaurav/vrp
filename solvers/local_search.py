@@ -1,5 +1,5 @@
 from parsers.vrp_parser import VRPInstance, VRPSolution
-from utils.route_utils import get_route_distance, get_solution_cost
+from utils.route_utils import get_route_distance, get_solution_cost, get_route_demand
 
 def get_2opt_refinements(instance: VRPInstance, solution: VRPSolution) -> VRPSolution:
     '''Improve solution using 2-opt local search (segment reversals).
@@ -68,3 +68,92 @@ def get_2opt_refinements(instance: VRPInstance, solution: VRPSolution) -> VRPSol
     cost = get_solution_cost(improved_routes, instance)
     
     return VRPSolution(cost = cost, routes = improved_routes)
+
+def get_relocate_refinements(instance: VRPInstance, solution: VRPSolution) -> VRPSolution:
+    '''Improve solution by relocating single nodes between routes.
+    
+    Relocate moves a single node from one route to the best position in another route.
+    Uses best-improvement strategy: scan all possible relocations, apply the best one found.
+    
+    Algorithm:
+    1. For each full scan of all possible relocations:
+    2.   Track the best relocation found (lowest cost)
+    3.   After scan completes, apply the best relocation
+    4.   If improvement found, restart scan with new solution
+    5. Exit when a full scan finds no improvements
+    
+    Args:
+        instance: VRPInstance with distance_matrix, capacity, demands
+        solution: VRPSolution to improve
+        
+    Returns:
+        VRPSolution with improved routes and updated cost
+        
+    Note:
+        - Best-improvement strategy: scan all options, apply the best
+        - Operates across routes (unlike 2-opt which improves within routes)
+    '''
+    
+    optimal_cost = solution.cost
+    routes = solution.routes
+    improved = True
+    
+    # Keep iterating while improvements found in last scan
+    while improved:
+        improved = False
+
+        # Track best move found in this full scan
+        best_move_src_idx = None
+        best_move_target_idx = None
+        best_move_src_route = None
+        best_move_temp_target_route = None
+        
+        # Try relocating each node in each route
+        for src_route_idx in range(len(routes)):
+            src_route = routes[src_route_idx].copy()
+            
+            for src_node_idx in range(len(src_route)):
+                src_node = src_route[src_node_idx]
+            
+                # Try moving this node to every other route
+                for target_route_idx in range(len(routes)):
+                    target_route = routes[target_route_idx].copy()
+                    if src_route_idx == target_route_idx:
+                        continue
+                    
+                    # Try every position in the target route
+                    # Note: The + 1 allows to go till the end of the target_route.
+                    #       At that point, target_route[target_node_idx :] = [], so no error is thrown up.
+                    for target_node_idx in range(len(target_route) + 1):
+                        temp_src_route = src_route.copy()
+                        temp_src_route.pop(src_node_idx)
+                        
+                        temp_target_route = target_route[: target_node_idx] + [src_node] + target_route[target_node_idx :]
+                        temp_demand = get_route_demand(temp_target_route, instance)
+                        
+                        # Check capacity feasibility
+                        if temp_demand <= instance.capacity:
+                        
+                            temp_routes = routes.copy()
+                            temp_routes[src_route_idx] = temp_src_route.copy()
+                            temp_routes[target_route_idx] = temp_target_route.copy()
+                            
+                            temp_cost = get_solution_cost(temp_routes, instance)
+                            
+                            # Track best improvement found
+                            if temp_cost < optimal_cost:
+                                improved = True
+                                optimal_cost = temp_cost
+
+                                best_move_src_idx = src_route_idx
+                                best_move_target_idx = target_route_idx
+                                best_move_src_route = temp_src_route.copy()
+                                best_move_temp_target_route = temp_target_route.copy()
+                                
+        # Apply best move found after full scan completes
+        if improved:
+            routes[best_move_src_idx] = best_move_src_route
+            routes[best_move_target_idx] = best_move_temp_target_route
+                
+    cost = get_solution_cost(routes, instance)
+    return VRPSolution(cost = cost, routes = routes)
